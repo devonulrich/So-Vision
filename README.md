@@ -8,6 +8,12 @@ does a poor job on non-frontal faces. The perspective transform took a bit more 
 face, but I did some geometry in the .py file to get the eyes as two points, and two other points parallel to
 the mouth.
 
+## To-do List
+* ~~Use perspective transform for face filters~~
+* Create filter system for left/right mouth keypoints (currently we only have one for left/right eyes)
+* Make some more filters! (sunglasses, facial hair, cartoon smile, clown nose, etc)
+* Find a dataset to apply filters to
+
 ## How to run
 I'm using the COS429 enironment that they had us set up. The only other packages that I needed to install were
 `mtcnn` and `tensorflow`, so get both through `pip`
