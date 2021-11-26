@@ -44,7 +44,7 @@ def get_persp_face_pts(face):
     lb_h /= lb_h[2]
     rb_h /= rb_h[2]
 
-    out_mat = np.array([le_h, re_h, lb_h, rb_h])
+    out_mat = np.array([le_h, re_h, lb_h, rb_h], dtype=np.float32)
     return out_mat[:, :2]
 
 
@@ -53,8 +53,9 @@ def main():
 
     vid = cv2.VideoCapture(0)
 
-    en_filt = cv2.imread('en_glasses.png', cv2.IMREAD_UNCHANGED)
-    filt_pts = np.array([[31, 31], [63, 95], [95, 31]], dtype=np.float32)
+    # en_filt = cv2.imread('en_glasses.png', cv2.IMREAD_UNCHANGED)
+    pe_filt = cv2.imread('pe_glasses.png', cv2.IMREAD_UNCHANGED)
+    filt_pts = np.array([[31, 31], [95, 31], [31, 127], [95, 127]], dtype=np.float32)
 
     while(True):
         ret, frame = vid.read()
@@ -63,25 +64,14 @@ def main():
         out = detector.detect_faces(frameAlt)
 
         for face in out:
-            pts = list(face['keypoints'].values())
-            img_pts = np.ones((3,2), dtype=np.float32)
-            img_pts[0, :] = pts[0] # left eye
-            img_pts[1, :] = pts[2] # nose
-            img_pts[2, :] = pts[1] # right eye
-
-            M = cv2.getAffineTransform(filt_pts, img_pts)
-            filtOut = cv2.warpAffine(en_filt, M, (frame.shape[1], frame.shape[0]))
+            persp_pts = np.round(get_persp_face_pts(face))
+            M = cv2.getPerspectiveTransform(filt_pts, persp_pts)
+            filtOut = cv2.warpPerspective(pe_filt, M, (frame.shape[1], frame.shape[0]))
             mask = filtOut[:,:,3] != 0
 
-            # frame[mask] = np.array([0, 0, 0])
-            # frame += filtOut[:,:,:3]
+            frame[mask] = np.array([0, 0, 0])
+            frame += filtOut[:,:,:3]
 
-            for (x, y) in pts:
-                cv2.circle(frame, (x, y), 5, (255, 0, 0))
-
-            persp_pts = get_persp_face_pts(face)
-            print(persp_pts)
-            print(persp_pts)
             for i in range(4):
                 cv2.circle(frame, (int(persp_pts[i,0]), int(persp_pts[i,1])), 5, (0, 0, 255))
 
