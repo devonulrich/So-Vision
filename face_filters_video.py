@@ -1,6 +1,7 @@
 from mtcnn import MTCNN
 import cv2
 import numpy as np
+from PIL import Image
 from matplotlib import pyplot as plt
 
 # returns line perpendicular to l that passes through
@@ -67,10 +68,11 @@ def main():
             persp_pts = np.round(get_persp_face_pts(face))
             M = cv2.getPerspectiveTransform(filt_pts, persp_pts)
             filtOut = cv2.warpPerspective(pe_filt, M, (frame.shape[1], frame.shape[0]))
-            mask = filtOut[:,:,3] != 0
 
-            frame[mask] = np.array([0, 0, 0])
-            frame += filtOut[:,:,:3]
+            filtPIL = Image.fromarray(filtOut)
+            framePIL = Image.fromarray(frame).convert('RGBA') # technically its BGRA, but we're converting it back to cv2 so it doesn't matter
+            framePIL.alpha_composite(filtPIL)
+            frame = np.asarray(framePIL)
 
             for i in range(4):
                 cv2.circle(frame, (int(persp_pts[i,0]), int(persp_pts[i,1])), 5, (0, 0, 255))
