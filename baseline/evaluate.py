@@ -9,6 +9,8 @@ from mtcnn import MTCNN
 FOLDS_PATH = '../FDDB-folds'
 FDDB_PATH = '../fddb'
 
+TEST_SET_SIZE = 500
+
 # rects are (x, y, width, height)
 def IoU(rect1, rect2):
     lo1_x = rect1[0]
@@ -45,6 +47,7 @@ class FDDBImg:
         for f in faces:
             self.ref_bboxes.append(self._get_bbox(f))
 
+    # convert FDDB ellipse to a bounding box
     def _get_bbox(self, ellipse : str):
         numStrs = ellipse.split()
         vals = [float(ns) for ns in numStrs]
@@ -58,16 +61,23 @@ class FDDBImg:
 
         return (int(center_x - rx), int(center_y - ry), int(rx * 2), int(ry * 2))
 
+    def add_pred(self, bbox, conf):
+        self.pred_bboxes.append(bbox)
+        self.pred_conf.append(conf)
+
     def get_img(self):
         # return plt.imread(self.path)
         return cv2.cvtColor(cv2.imread(self.path), cv2.COLOR_BGR2RGB)
 
-    def compute_metrics(self):
-        self.pred_det = [False for b in self.pred_bboxes]
-        self.ref_det = [False for b in self.ref_bboxes]
+    def compute_metrics(self, threshold=0.0, returnArrs=False):
+        pred_det = [False for b in self.pred_bboxes]
+        ref_det = [False for b in self.ref_bboxes]
         false_pos_cnt = 0
         for i in range(len(self.pred_bboxes)):
             curr_bbox = self.pred_bboxes[i]
+            if self.pred_conf[i] < threshold:
+                continue
+
             maxIoU = 0
             maxIdx = 0
             for j in range(len(self.ref_bboxes)):
@@ -78,9 +88,9 @@ class FDDBImg:
             
             # compute true pos, false pos, false neg for all pred/ref bboxes
             # true pos: IoU is over .5, maxIdx isn't flagged
-            if maxIoU >= 0.5 and not self.ref_det[maxIdx]:
-                self.ref_det[maxIdx] = True
-                self.pred_det[i] = True
+            if maxIoU >= 0.5 and not ref_det[maxIdx]:
+                ref_det[maxIdx] = True
+                pred_det[i] = True
             else:
                 # false pos: IoU less than .5 or maxIdx is flagged
                 false_pos_cnt += 1
@@ -88,13 +98,16 @@ class FDDBImg:
         # false neg: maxIdx isn't flagged after all pred bboxes
         false_neg_cnt = 0
         true_pos_cnt = 0
-        for d in self.ref_det:
+        for d in ref_det:
             if d:
                 true_pos_cnt += 1
             else:
                 false_neg_cnt += 1
         
-        return (true_pos_cnt, false_pos_cnt, false_neg_cnt)
+        if returnArrs:
+            return (true_pos_cnt, false_pos_cnt, false_neg_cnt, pred_det, ref_det)
+        else:
+            return (true_pos_cnt, false_pos_cnt, false_neg_cnt)
 
     
     def draw(self):
@@ -125,7 +138,7 @@ def main():
             allFaces.append(obj)
     
     random.shuffle(allFaces)
-    testSet = allFaces[:300] 
+    testSet = allFaces[:TEST_SET_SIZE] 
 
     i = 0
     for img in testSet:
@@ -134,12 +147,12 @@ def main():
         cnnOut = detector.detect_faces(img.get_img())
         for pred_f in cnnOut:
             pred_box = pred_f['box']
-            img.pred_bboxes.append((pred_box[0], pred_box[1], pred_box[2], pred_box[3]))
-            img.pred_conf.append(pred_f['confidence'])
+            bbox = (pred_box[0], pred_box[1], pred_box[2], pred_box[3])
+            img.add_pred(bbox, pred_f['confidence'])
         
-        print('true/false pos/false neg', img.compute_metrics())
-        print(img.pred_conf)
-        img.draw()
+        # print('true/false pos/false neg', img.compute_metrics())
+        # print(img.pred_conf)
+        # img.draw()
 
     with open('fddb_mtcnn.pkl', 'wb') as pfile:
         pickle.dump(testSet, pfile)
