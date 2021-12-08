@@ -63,7 +63,7 @@ class CartoonDataGenerator(Sequence):
         our_bbox = (face_bbox[0], face_bbox[1], our_size, our_size)
         
         cropped_img = img[our_bbox[1] : our_bbox[1] + our_bbox[3], our_bbox[0] : our_bbox[0] + our_bbox[2], :]
-        return cv2.resize(cropped_img, (224, 224)), True
+        return cv2.resize(cropped_img, (224, 224)), 1.0
 
     # get a negative example from a specific file
     def _get_neg(self, file, img):
@@ -86,4 +86,4 @@ class CartoonDataGenerator(Sequence):
                 break
 
         cropped_img = img[our_bbox[1] : our_bbox[1] + our_bbox[3], our_bbox[0] : our_bbox[0] + our_bbox[2], :]
-        return cv2.resize(cropped_img, (224, 224)), False
+        return cv2.resize(cropped_img, (224, 224)), 0.0

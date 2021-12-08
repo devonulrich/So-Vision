@@ -18,15 +18,15 @@ def train():
     x = base_model(model_input, training=False)
     # x = keras.layers.Convolution2D(1, 2, 2, activation='relu', name='newconv_1')(x)
     x = keras.layers.Flatten()(x)
-    x = keras.layers.Dense(1)(x)
+    x = keras.layers.Dense(1, activation='sigmoid')(x)
 
     model = keras.Model(model_input, x)
-    crossentropy = keras.losses.BinaryCrossentropy(from_logits=True)
+    crossentropy = keras.losses.BinaryCrossentropy(from_logits=False)
     model.compile(optimizer=keras.optimizers.Adam(), loss=crossentropy, metrics=['accuracy'])
     model.summary()
 
     gen = CartoonDataGenerator(ANIME_PATH)
-    model.fit(gen, verbose=1, use_multiprocessing=True)
+    model.fit(gen, epochs=10, verbose=1, use_multiprocessing=True)
     model.save('./modelout')
 
 if __name__ == '__main__':
