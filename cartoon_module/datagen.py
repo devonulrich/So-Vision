@@ -5,27 +5,31 @@ import pandas
 from util import load_img, IoU
 from tensorflow.keras.utils import Sequence
 
+def assemble_dict(path):
+    df = pandas.read_csv(path + '/icartoonface_dettrain.csv', 
+        names=['file', 'x1', 'y1', 'x2', 'y2'])
+    get_bbox = lambda row : (row['x1'], row['y1'], row['x2'] - row['x1'], row['y2'] - row['y1'])
+
+    bbox_dict = {}
+    for _, row in df.iterrows():
+        fname = row['file']
+        if fname in bbox_dict:
+            bbox_dict[fname].append(get_bbox(row))
+        else:
+            bbox_dict[fname] = [get_bbox(row)]
+    return bbox_dict
+
+# reads face data with 1 pos example, 3 neg examples per image
+# splits images into training / validation sets:
+#   - train=True/False tells us which set of images to keep
+#   - frac gives us the fraction of training images
 class CartoonDataGenerator(Sequence):
-    def __init__(self, path, batch_size=128):
+    def __init__(self, path, bbox_dict, files, batch_size=128):
         self.path = path
-        self.bbox_dict = self._assemble_dict()
-        self.files = list(self.bbox_dict.keys())
+        self.bbox_dict = bbox_dict
+        self.files = files
         self.nfiles = len(self.files)
         self.batch_size = batch_size
-
-    def _assemble_dict(self):
-        df = pandas.read_csv(self.path + '/icartoonface_dettrain.csv', 
-            names=['file', 'x1', 'y1', 'x2', 'y2'])
-        get_bbox = lambda row : (row['x1'], row['y1'], row['x2'] - row['x1'], row['y2'] - row['y1'])
-
-        bbox_dict = {}
-        for _, row in df.iterrows():
-            fname = row['file']
-            if fname in bbox_dict:
-                bbox_dict[fname].append(get_bbox(row))
-            else:
-                bbox_dict[fname] = [get_bbox(row)]
-        return bbox_dict
 
     # number of batches per epoch
     def __len__(self):
