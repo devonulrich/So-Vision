@@ -6,6 +6,7 @@ import pickle
 import os
 
 from mtcnn import MTCNN
+from PIL import Image
 
 FOLDS_PATH = '../FDDB-folds'
 FDDB_PATH = '../fddb'
@@ -238,7 +239,7 @@ def mainime():
     with open('anime_mtcnn.pkl', 'wb') as pfile:
         pickle.dump(testSet, pfile)
         
-def get_real_faces_from_file(path):
+def get_real_faces_from_file(path, minimum_size = 0):
     allFaces = []
     with open(path) as f:
         while True:
@@ -251,10 +252,13 @@ def get_real_faces_from_file(path):
             cnt = int(f.readline())
             faces = [f.readline() for i in range(cnt)]
 
-            
             image_path = FDDB_PATH + '/' + name + '.jpg'
 
             if os.path.exists(image_path):
+                # Check image size, without loading into memory
+                im = Image.open(image_path)
+                if im.width < minimum_size or im.height < minimum_size:
+                    continue
                 obj = FDDBImg(image_path, faces)
                 allFaces.append(obj)
 

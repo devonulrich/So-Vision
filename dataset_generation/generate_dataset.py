@@ -4,6 +4,7 @@ import sys
 import random
 from collections import defaultdict
 from shutil import copy
+from PIL import Image
 
 # import stuff from evaluate
 sys.path.append("../baseline")
@@ -15,6 +16,7 @@ new_dataset_annotation_path = "./so_vision_dataset"
 new_dataset_image_path = "./so_vision_dataset/so_vision_test_set"
 
 images_per_type = 1000
+min_size = 160
 
 # Note: since ANIMOO and FDDBImg both have the ref_bboxes variable, this works, but this is bad practice :) it wouldn't be tho if they inherited from something
 def write_image_to_file(curr_file, image, new_path, curr_class):
@@ -33,7 +35,7 @@ def generate_dataset():
 
     for x in range(1,11):
         current_descriptor_path = "../FDDB-folds/FDDB-fold-" + f"{x:02d}" + "-ellipseList.txt"
-        real_images.extend(get_real_faces_from_file(current_descriptor_path))
+        real_images.extend(get_real_faces_from_file(current_descriptor_path, min_size))
     
     cartoon_image_descriptors = np.genfromtxt("../personai_icartoonface_dettrain/icartoonface_dettrain.csv", dtype=str, delimiter="\n", encoding="utf-8")
     cartoon_boxes = defaultdict(list)
@@ -46,6 +48,9 @@ def generate_dataset():
 
     for path, bounding_boxes in cartoon_boxes.items():
         if os.path.exists(path):
+            im = Image.open(path)
+            if im.width < min_size or im.height < min_size:
+                continue
             cartoon_images.append(ANIMOO(path, bounding_boxes))
 
     # set seed for reproducibility

@@ -66,7 +66,7 @@ def main():
         with open(cartoon_save_file, 'rb') as f:
             cartoon_images = pickle.load(f)
     else:
-        cartoon_images = process_images("../personai_icartoonface_rectrain/")
+        cartoon_images = process_images("../personai_icartoonface_dettrain/")
         with open(cartoon_save_file, 'wb') as f:
             pickle.dump(cartoon_images, f)
 
@@ -147,7 +147,7 @@ def main():
     # 128_slice_25000_doubleconv5 = 5 conv 5 conv dense
     # 160_slice_25000_tripleconv5_pool = 5 conv 5 conv pool 5 conv dense 88% test accuracy
     # 160_slice_25000_quadconv15_2pool = 15 conv 15 conv pool 15 conv 15conv pool dense
-    model.save("saved_models/160_slice_25000_quadconv15_2pool.h5")
+    model.save("saved_models/160_slice_25000_quadconv15_2pool_dettrainned.h5")
 
 if __name__ == "__main__":
     main()
