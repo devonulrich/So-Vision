@@ -1,3 +1,4 @@
+from numpy.lib.type_check import real
 from train_model import get_center_slice
 import keras
 import cv2
@@ -37,7 +38,7 @@ def inference(images):
         else:
             real_output.append(-1)
     
-    print(real_output)
+    return real_output
 
 input_images = []
 
@@ -45,4 +46,4 @@ for x in range(0,5):
     input_images.append(cv2.cvtColor(cv2.imread("../test_face_" + str(x) + ".jpg"), cv2.COLOR_BGR2RGB))
 # input_images.append(cv2.cvtColor(cv2.imread("../test_face_1.jpg"), cv2.COLOR_BGR2RGB))
 
-inference(input_images)
+print(inference(input_images))

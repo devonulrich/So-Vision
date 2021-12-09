@@ -4,4 +4,7 @@ fddb
 dataset_path
 tmp.tar.gz
 personai_icartoonface_rectrain
+personai_icartoonface_dettrain
+personai_icartoonface_detval
 FDDB-folds
+so_vision_dataset
