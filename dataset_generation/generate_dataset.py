@@ -10,7 +10,7 @@ from PIL import Image
 sys.path.append("../baseline")
 from evaluate import ANIMOO, FDDBImg, get_real_faces_from_file
 
-cartoon_set_path = "../personai_icartoonface_dettrain/icartoonface_dettrain"
+cartoon_set_path = "../personai_icartoonface_detval/icartoonface_detval"
 real_set_path = "../fddb"
 new_dataset_annotation_path = "./so_vision_dataset"
 new_dataset_image_path = "./so_vision_dataset/so_vision_test_set"
@@ -37,13 +37,13 @@ def generate_dataset():
         current_descriptor_path = "../FDDB-folds/FDDB-fold-" + f"{x:02d}" + "-ellipseList.txt"
         real_images.extend(get_real_faces_from_file(current_descriptor_path, min_size))
     
-    cartoon_image_descriptors = np.genfromtxt("../personai_icartoonface_dettrain/icartoonface_dettrain.csv", dtype=str, delimiter="\n", encoding="utf-8")
+    cartoon_image_descriptors = np.genfromtxt("../personai_icartoonface_detval/personai_icartoonface_detval.csv", dtype=str, delimiter="\n", encoding="utf-8")
     cartoon_boxes = defaultdict(list)
 
     for line in cartoon_image_descriptors:
         split_arr = line.split(",")
         path = cartoon_set_path + "/" + split_arr[0]
-        bounding_box = split_arr[1:] 
+        bounding_box = split_arr[1:5] 
         cartoon_boxes[path].append(bounding_box)
 
     for path, bounding_boxes in cartoon_boxes.items():

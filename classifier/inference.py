@@ -40,10 +40,10 @@ def inference(images):
     
     return real_output
 
-# input_images = []
+input_images = []
 
-# for x in range(0,5):
-#     input_images.append(cv2.cvtColor(cv2.imread("../test_face_" + str(x) + ".jpg"), cv2.COLOR_BGR2RGB))
+for x in range(0,5):
+    input_images.append(cv2.cvtColor(cv2.imread("../test_face_" + str(x) + ".jpg"), cv2.COLOR_BGR2RGB))
 # input_images.append(cv2.cvtColor(cv2.imread("../test_face_1.jpg"), cv2.COLOR_BGR2RGB))
 
-# inference(input_images)
+print(inference(input_images))
