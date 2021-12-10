@@ -30,16 +30,25 @@ def sliding_window(model, img, doPrint=False):
 
     rects = []
     rects_conf = []
+
+    patches = []
     for i in range(len(all_pts_x)):
         if i % 100 == 0 and doPrint:
             print(i, '/', len(all_pts_x), flush=True)
         curr_x = all_pts_x[i]
         curr_y = all_pts_y[i]
         patch = img[curr_y : curr_y + WINDOW_SIZE, curr_x : curr_x + WINDOW_SIZE, :]
-        conf = model.predict(patch[np.newaxis, ...])[0,0]
-        if conf > MIN_CONFIDENCE:
-            rects.append([curr_x, curr_y, WINDOW_SIZE, WINDOW_SIZE])
-            rects_conf.append(conf)
+        patches.append(patch)
+        # conf = model.predict(patch[np.newaxis, ...])[0,0]
+        # if conf > MIN_CONFIDENCE:
+        #     rects.append([curr_x, curr_y, WINDOW_SIZE, WINDOW_SIZE])
+        #     rects_conf.append(conf)
+
+    scores = model.predict(np.array(patches), batch_size=128, verbose=1)
+    for i in range(len(all_pts_x)):
+        if scores[i,0] > MIN_CONFIDENCE:
+            rects.append([all_pts_x[i], all_pts_y[i], WINDOW_SIZE, WINDOW_SIZE])
+            rects_conf.append(scores[i,0])
     # plt.imsave('test.png', hmap)
     return np.array(rects), np.array(rects_conf)
 
