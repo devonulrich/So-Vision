@@ -32,7 +32,7 @@ def sliding_window(model, img, doPrint=False):
     rects_conf = []
     for i in range(len(all_pts_x)):
         if i % 100 == 0 and doPrint:
-            print(i, '/', len(all_pts_x))
+            print(i, '/', len(all_pts_x), flush=True)
         curr_x = all_pts_x[i]
         curr_y = all_pts_y[i]
         patch = img[curr_y : curr_y + WINDOW_SIZE, curr_x : curr_x + WINDOW_SIZE, :]
@@ -92,13 +92,13 @@ def detect_on_img(model, img : np.ndarray, soft=False):
     newShape = (int(img.shape[1] * scale_factor), int(img.shape[0] * scale_factor))
     img = cv2.resize(img, newShape)
 
-    print('starting sliding window')
+    print('starting sliding window', flush=True)
     all_rects = np.empty((0, 4))
     all_confs = np.empty((0))
     while(img.shape[0] >= WINDOW_SIZE and img.shape[1] >= WINDOW_SIZE):
-        print('scale:', scale_factor)
-        print('dims:', img.shape)
-        rects, rects_conf = sliding_window(model, img)
+        print('scale:', scale_factor, flush=True)
+        print('dims:', img.shape, flush=True)
+        rects, rects_conf = sliding_window(model, img, True)
         if len(rects) > 0:
             rects = rects / scale_factor
             all_rects = np.vstack((all_rects, rects))

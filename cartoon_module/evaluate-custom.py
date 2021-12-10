@@ -1,16 +1,15 @@
-import cv2
-import math
+import numpy as np
 import random
-import matplotlib.pyplot as plt
+import tensorflow as tf
 from tensorflow import keras
 import pickle
-import os
-from PIL import Image
+import cv2
+import matplotlib.pyplot as plt
 
 import detect
 import util
 
-ICARTOON_PATH = '/Users/devon/Desktop/personai_icartoonface_dettrain'
+ICARTOON_PATH = '/scratch/network/dulrich/personai_icartoonface_dettrain'
 
 TEST_SET_SIZE = 500
 
@@ -90,8 +89,8 @@ class CartoonImg:
         plt.imshow(img)
         plt.show()
 
-def mainime():
-    model = keras.models.load_model('./modelout', compile=False)
+def main():
+    model = keras.models.load_model('./modelout')
     allFaces = []
     dict = {}
     with open(ICARTOON_PATH + '/icartoonface_dettrain.csv') as f:
@@ -113,12 +112,14 @@ def mainime():
     random.shuffle(allFaces)
     testSet = allFaces[:TEST_SET_SIZE] 
 
+    print('done loading', flush=True)
+
     i = 0
     for img in testSet:
-        print(i)
+        print(i, flush=True)
         i += 1
         outboxes, outscores = detect.detect_on_img(model, img.get_img(), soft=SOFT)
-        for boxIdx in len(outscores):
+        for boxIdx in range(len(outscores)):
             pred_box = outboxes[i,:]
             bbox = (pred_box[0], pred_box[1], pred_box[2], pred_box[3])
             img.add_pred(bbox, outscores[i])
@@ -130,4 +131,4 @@ def mainime():
         pickle.dump(testSet, pfile)
         
 if __name__ == '__main__':
-    mainime()
+    main()
