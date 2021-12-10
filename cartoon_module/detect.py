@@ -1,6 +1,9 @@
 import numpy as np
-import cv2
+import random
+import tensorflow as tf
 from tensorflow import keras
+
+import cv2
 import matplotlib.pyplot as plt
 
 # can detect faces that are 0.25% of the image by area
@@ -31,17 +34,20 @@ def detect_on_img(model, img : np.ndarray):
     min_face_area = img.shape[0] * img.shape[1] * FACE_SIZE_THRESHOLD
     min_face_size = np.sqrt(min_face_area)
     scale_factor = 224 / min_face_size
-    newShape = (int(img.shape[0] * scale_factor), int(img.shape[1] * scale_factor))
+    newShape = (int(img.shape[1] * scale_factor), int(img.shape[0] * scale_factor))
+    print('resizing')
     largeImg = cv2.resize(img, newShape)
 
+    print('starting sliding window')
     sliding_window(model, largeImg, doPrint=True)
 
 
 def main():
-    model = keras.models.load_model('./modelout')
-    testImg = plt.imread('/Users/devon/Desktop/personai_icartoonface_dettrain/icartoonface_dettrain/personai_icartoonface_dettrain_22378.jpg')
+    tf.keras.backend.clear_session()
+    model = keras.models.load_model('./modelout', compile=False)
+    testImgPath = '/scratch/network/dulrich/personai_icartoonface_dettrain/icartoonface_dettrain/personai_icartoonface_dettrain_22378.jpg'
+    testImg = cv2.cvtColor(cv2.imread(testImgPath), cv2.COLOR_BGR2RGB)
     detect_on_img(model, testImg)
-    plt.waitforbuttonpress()
 
 if __name__ == '__main__':
     main()
