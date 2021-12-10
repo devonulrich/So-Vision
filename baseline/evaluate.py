@@ -245,7 +245,7 @@ def read_annotation(f):
     name, curr_class = first_line.split(" ")
 
     cnt = int(f.readline())
-    faces = [f.readline() for i in range(cnt)]
+    faces = [f.readline().split(" ") for i in range(cnt)]
 
     image_path = SO_VISION_PATH+ '/' + name + '.jpg'
 
