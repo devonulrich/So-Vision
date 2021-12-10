@@ -32,7 +32,7 @@ def sliding_window(model, img, doPrint=False):
         curr_x = all_pts_x[i]
         curr_y = all_pts_y[i]
         patch = img[curr_y : curr_y + WINDOW_SIZE, curr_x : curr_x + WINDOW_SIZE, :]
-        conf = model.predict(patch[np.newaxis, ...])
+        conf = model.predict(patch[np.newaxis, ...])[0,0]
         if conf > MIN_CONFIDENCE:
             rects.append([curr_x, curr_y, WINDOW_SIZE, WINDOW_SIZE])
             rects_conf.append(conf)
@@ -54,9 +54,10 @@ def detect_on_img(model, img : np.ndarray):
         print('scale:', scale_factor)
         print('dims:', img.shape)
         rects, rects_conf = sliding_window(model, img)
-        rects = rects / scale_factor
-        all_rects = np.vstack((all_rects, rects))
-        all_confs = np.concatenate((rects_conf))
+        if len(rects) > 0:
+            rects = rects / scale_factor
+            all_rects = np.vstack((all_rects, rects))
+            all_confs = np.concatenate((all_confs, rects_conf))
 
         scale_factor = scale_factor * RESCALING_FACTOR
         newShape = (int(img.shape[1] * RESCALING_FACTOR), int(img.shape[0] * RESCALING_FACTOR))
@@ -67,8 +68,7 @@ def detect_on_img(model, img : np.ndarray):
 
 
 def main():
-    tf.keras.backend.clear_session()
-    model = keras.models.load_model('./modelout', compile=False)
+    model = keras.models.load_model('modelout')
     testImgPath = '/scratch/network/dulrich/personai_icartoonface_dettrain/icartoonface_dettrain/personai_icartoonface_dettrain_22378.jpg'
     testImg = cv2.cvtColor(cv2.imread(testImgPath), cv2.COLOR_BGR2RGB)
     detect_on_img(model, testImg)
