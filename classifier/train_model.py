@@ -5,6 +5,7 @@ import pickle
 import cv2
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, MaxPooling2D, Flatten
+from matplotlib import pyplot as plt
 
 image_slice_size = 160
 image_slice_shape = (image_slice_size,image_slice_size,3)
@@ -117,15 +118,15 @@ def main():
     # Convolutional Layer(s)
     model.add(Conv2D(15, 3, data_format="channels_last", activation="relu", input_shape=image_slice_shape))
     # 2nd conv layer
-    model.add(Conv2D(15, 3, data_format="channels_last", activation="relu", input_shape=image_slice_shape))
+    model.add(Conv2D(15, 3, data_format="channels_last", activation="relu"))
     
     # Pooling layer
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=None, padding="same", data_format="channels_last"))
+    model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_last"))
 
-    model.add(Conv2D(15, 3, data_format="channels_last", activation="relu", input_shape=image_slice_shape))
-    model.add(Conv2D(15, 3, data_format="channels_last", activation="relu", input_shape=image_slice_shape))
+    model.add(Conv2D(15, 3, data_format="channels_last", activation="relu"))
+    model.add(Conv2D(15, 3, data_format="channels_last", activation="relu"))
 
-    model.add(MaxPooling2D(pool_size=(2, 2), strides=None, padding="same", data_format="channels_last"))
+    model.add(MaxPooling2D(pool_size=(2, 2), data_format="channels_last"))
 
     # Flatten
     model.add(Flatten())
@@ -138,7 +139,7 @@ def main():
 
     model.summary()
 
-    model.fit(data_X, data_Y, validation_data=(test_X, test_Y), batch_size=512, epochs=100)
+    history = model.fit(data_X, data_Y, validation_data=(test_X, test_Y), batch_size=512, epochs=50)
 
     # 128_slice_15000_double_conv_maxpool = 7 conv 7 conv pool dense
     # 128_slice_25000_double_conv_maxpool = 4 conv 4 conv pool dense
@@ -147,7 +148,32 @@ def main():
     # 128_slice_25000_doubleconv5 = 5 conv 5 conv dense
     # 160_slice_25000_tripleconv5_pool = 5 conv 5 conv pool 5 conv dense 88% test accuracy
     # 160_slice_25000_quadconv15_2pool = 15 conv 15 conv pool 15 conv 15conv pool dense
-    model.save("saved_models/160_slice_25000_quadconv15_2pool_dettrainned.h5")
+    # 25_epoch_model = 15 conv 15 conv pool 15 conv 15 conv pool dense, 160 slice
+    model.save("saved_models/50_epoch_model2.h5")
+
+    # Plot accuracy
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+
+    plt.title('Binary Classifier Accuracy')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+
+    plt.savefig('accuracy_plot.png')
+
+    plt.clf()
+
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+
+    # Plot loss
+    plt.title('Binary Classifier Loss')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+
+    plt.savefig('loss_plot.png')
 
 if __name__ == "__main__":
     main()

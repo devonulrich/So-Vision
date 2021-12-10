@@ -6,6 +6,8 @@ import cv2
 import matplotlib.pyplot as plt
 import pickle
 
+import util
+
 # size of each input window. based on network ; should not be changed
 WINDOW_SIZE = 224
 
@@ -17,6 +19,8 @@ FACE_SIZE_THRESHOLD = 0.0025
 MIN_CONFIDENCE = 0.2
 # new_size = size * RESCALING_FACTOR; 0.8 is roughly 3 images per octave
 RESCALING_FACTOR = 0.8
+# from paper
+NMS_THRESHOLD = 0.2
 
 def sliding_window(model, img, doPrint=False):
     pts_x = np.arange(0, img.shape[1] - WINDOW_SIZE, 32) # stride = 32 
@@ -39,7 +43,48 @@ def sliding_window(model, img, doPrint=False):
     # plt.imsave('test.png', hmap)
     return np.array(rects), np.array(rects_conf)
 
-def detect_on_img(model, img : np.ndarray):
+def NMS_Max(rects, rects_conf):
+    final_rects = []
+    final_confs = []
+    idxs = np.argsort(rects_conf)
+    for i in range(len(rects)):
+        # curr rect
+        idx_i = idxs[i]
+        include = True
+        for j in range(i+1, len(rects)):
+            # comparison rect
+            idx_j = idxs[j]
+            if util.IoU(rects[idx_i], rects[idx_j]) > NMS_THRESHOLD:
+                include = False
+                break
+        if include:
+            final_rects.append(rects[idx_i])
+            final_confs.append(rects_conf[idx_i])
+
+    return np.array(final_rects), np.array(final_confs)
+
+def Soft_NMS(rects, rects_conf):
+    rects_conf = rects_conf.copy()
+    final_rects = []
+    final_confs = []
+    idxs = np.argsort(rects_conf)
+    for i in range(len(rects)):
+        # curr rect (low score)
+        idx_i = idxs[i]
+        for j in range(i+1, len(rects)):
+            # comparison rect
+            idx_j = idxs[j]
+            if util.IoU(rects[idx_i], rects[idx_j]) > NMS_THRESHOLD:
+                rects_conf[idx_i] = rects_conf[idx_i] * (1 - util.IoU(rects[idx_i], rects[idx_j]))
+
+        # final thresholding
+        if rects_conf[idx_i] > 0.5:
+            final_rects.append(rects[idx_i])
+            final_confs.append(rects_conf[idx_i])
+
+    return np.array(final_rects), np.array(final_confs)
+
+def detect_on_img(model, img : np.ndarray, soft=False):
     # first scale img up
     min_face_area = img.shape[0] * img.shape[1] * FACE_SIZE_THRESHOLD
     min_face_size = np.sqrt(min_face_area)
@@ -63,9 +108,11 @@ def detect_on_img(model, img : np.ndarray):
         newShape = (int(img.shape[1] * RESCALING_FACTOR), int(img.shape[0] * RESCALING_FACTOR))
         img = cv2.resize(img, newShape)
 
-    with open('tmprects.pkl', 'wb') as pfile:
-        pickle.dump((all_rects, all_confs), pfile)
-
+    if soft:
+        final_rects, final_confs = Soft_NMS(all_rects, all_confs)
+    else:
+        final_rects, final_confs = NMS_Max(all_rects, all_confs)
+    return final_rects, final_confs
 
 def main():
     model = keras.models.load_model('modelout')
