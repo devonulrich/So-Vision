@@ -118,8 +118,8 @@ class FDDBImg:
         img = plt.imread(self.path)
         for bbox in self.ref_bboxes:
             img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0))
-        for bbox in self.pred_bboxes:
-            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255))
+        # for bbox in self.pred_bboxes:
+        #     img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255))
 
         plt.imshow(img)
         plt.show()
@@ -192,8 +192,8 @@ class ANIMOO:
         img = plt.imread(self.path)
         for bbox in self.ref_bboxes:
             img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0))
-        for bbox in self.pred_bboxes:
-            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255))
+        # for bbox in self.pred_bboxes:
+        #     img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255))
 
         plt.imshow(img)
         plt.show()
@@ -201,29 +201,10 @@ class ANIMOO:
 def mainime():
     print("ADVENTURE TIME")
     detector = MTCNN()
-    allFaces = []
-    dict = {}
-    with open(ANIME_PATH + '/icartoon2000.csv') as f:
-        while True:
-            line = f.readline()
-            if line == '':
-                break
-            else:
-                line = line[:-1]
-            splitline = line.split(',')
-            name = splitline[0]
-            if(name not in dict):
-                dict[name] = []
-            dict[name].append(splitline[1:])
-    for name in dict:
-        obj = ANIMOO(ANIME_PATH + '/' + name , dict[name])
-        allFaces.append(obj)
-
-    random.shuffle(allFaces)
-    testSet = allFaces[:TEST_SET_SIZE] 
+    allFaces = get_anime_faces_from_our_set()
 
     i = 0
-    for img in testSet:
+    for img in allFaces:
         print(i)
         i += 1
         cnnOut = detector.detect_faces(img.get_img())
@@ -232,20 +213,66 @@ def mainime():
             bbox = (pred_box[0], pred_box[1], pred_box[2], pred_box[3])
             img.add_pred(bbox, pred_f['confidence'])
         
-        # print('true/false pos/false neg', img.compute_metrics())
-        # print(img.pred_conf)
-        # img.draw()
+        print('true/false pos/false neg', img.compute_metrics())
+        print(img.pred_conf)
+        img.draw()
+        if(i==5):
+            break
+    with open('anime_mtcnn.pkl', 'wb') as pfile:
+        pickle.dump(allFaces, pfile)
+    # detector = MTCNN()
+    # allFaces = 
+    # # dict = {}
+    # # with open(ANIME_PATH + '/icartoon2000.csv') as f:
+    # #     while True:
+    # #         line = f.readline()
+    # #         if line == '':
+    # #             break
+    # #         else:
+    # #             line = line[:-1]
+    # #         splitline = line.split(',')
+    # #         name = splitline[0]
+    # #         if(name not in dict):
+    # #             dict[name] = []
+    # #         dict[name].append(splitline[1:])
+    # # for name in dict:
+    # #     obj = ANIMOO(ANIME_PATH + '/' + name , dict[name])
+    # #     allFaces.append(obj)
+
+    # random.shuffle(allFaces)
+    # testSet = allFaces[:TEST_SET_SIZE] 
+
+    # i = 0
+    # for img in testSet:
+    #     print(i)
+    #     i += 1
+    #     cnnOut = detector.detect_faces(img.get_img())
+    #     for pred_f in cnnOut:
+    #         pred_box = pred_f['box']
+    #         bbox = (pred_box[0], pred_box[1], pred_box[2], pred_box[3])
+    #         img.add_pred(bbox, pred_f['confidence'])
+        
+    #     # print('true/false pos/false neg', img.compute_metrics())
+    #     # print(img.pred_conf)
+    #     # img.draw()
         
 
-    with open('anime_mtcnn.pkl', 'wb') as pfile:
-        pickle.dump(testSet, pfile)
+    # with open('anime_mtcnn.pkl', 'wb') as pfile:
+    #     pickle.dump(testSet, pfile)
+
 
 def read_annotation(f):
-    first_line = f.readLine()
+    first_line = f.readline()
     name, curr_class = first_line.split(" ")
 
     cnt = int(f.readline())
-    faces = [f.readline().split(" ") for i in range(cnt)]
+    faces = []
+
+    for _ in range(cnt):
+        for x1, y1, width, height in f.readline().split(" "):
+            x2 = x1 + width
+            y2 = y1 + height
+            faces.append((x1, y1, x2, y2))
 
     image_path = SO_VISION_PATH+ '/' + name + '.jpg'
 
@@ -300,13 +327,13 @@ def get_real_faces_from_file(path, minimum_size = 0):
 def main():
     print("lame.")
     detector = MTCNN()
-    allFaces = get_real_faces_from_file(FOLDS_PATH + '/allEllipses.txt')
+    allFaces = get_real_faces_from_our_set()
 
-    random.shuffle(allFaces)
-    testSet = allFaces[:TEST_SET_SIZE] 
+    # random.shuffle(allFaces)
+    # testSet = allFaces[:TEST_SET_SIZE] 
 
     i = 0
-    for img in testSet:
+    for img in allFaces:
         print(i)
         i += 1
         cnnOut = detector.detect_faces(img.get_img())
@@ -315,12 +342,14 @@ def main():
             bbox = (pred_box[0], pred_box[1], pred_box[2], pred_box[3])
             img.add_pred(bbox, pred_f['confidence'])
         
-        # print('true/false pos/false neg', img.compute_metrics())
-        # print(img.pred_conf)
-        # img.draw()
+        print('true/false pos/false neg', img.compute_metrics())
+        print(img.pred_conf)
+        img.draw()
+        if(i==5):
+            break
 
     with open('fddb_mtcnn.pkl', 'wb') as pfile:
-        pickle.dump(testSet, pfile)
+        pickle.dump(allFaces, pfile)
         
 
 if __name__ == '__main__':
