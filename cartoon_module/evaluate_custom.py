@@ -11,7 +11,7 @@ import util
 
 ICARTOON_PATH = '/scratch/network/dulrich/personai_icartoonface_dettrain'
 
-TEST_SET_SIZE = 100
+TEST_SET_SIZE = 500
 
 SOFT = False
 
@@ -120,7 +120,7 @@ def main():
         i += 1
         outboxes, outscores = detect.detect_on_img(model, img.get_img(), soft=SOFT)
         for boxIdx in range(len(outscores)):
-            pred_box = outboxes[boxIdx,:]
+            pred_box = np.int32(outboxes[boxIdx,:])
             bbox = (pred_box[0], pred_box[1], pred_box[2], pred_box[3])
             img.add_pred(bbox, outscores[boxIdx])
         

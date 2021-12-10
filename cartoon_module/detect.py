@@ -110,7 +110,7 @@ def detect_on_img(model, img : np.ndarray, soft=False):
     while(img.shape[0] >= WINDOW_SIZE and img.shape[1] >= WINDOW_SIZE):
         print('scale:', scale_factor, flush=True)
         print('dims:', img.shape, flush=True)
-        rects, rects_conf = sliding_window(model, img, True)
+        rects, rects_conf = sliding_window(model, img)
         if len(rects) > 0:
             rects = rects / scale_factor
             all_rects = np.vstack((all_rects, rects))
