@@ -261,7 +261,7 @@ def get_anime_faces_from_our_set():
 
     return allFaces
 
-def get_real_faces_from_our_set(path):
+def get_real_faces_from_our_set():
     allFaces = []
 
     with open(SO_VISION_PATH + "/annotations.txt") as f:
