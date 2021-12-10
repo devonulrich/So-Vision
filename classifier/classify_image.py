@@ -40,10 +40,10 @@ def classify_image(images):
     
     return real_output
 
-input_images = []
+# input_images = []
 
-for x in range(0,2000):
-    input_images.append(cv2.cvtColor(cv2.imread("../dataset_generation/so_vision_dataset/so_vision_test_set/img_" + str(x) + ".jpg"), cv2.COLOR_BGR2RGB))
+# for x in range(0,2000):
+#     input_images.append(cv2.cvtColor(cv2.imread("../dataset_generation/so_vision_dataset/so_vision_test_set/img_" + str(x) + ".jpg"), cv2.COLOR_BGR2RGB))
 # input_images.append(cv2.cvtColor(cv2.imread("../test_face_1.jpg"), cv2.COLOR_BGR2RGB))
 
 # res = classify_image(input_images)
