@@ -11,6 +11,7 @@ from PIL import Image
 FOLDS_PATH = '../FDDB-folds'
 FDDB_PATH = '../fddb'
 ANIME_PATH = '../cartoon_2000'
+SO_VISION_PATH = "../dataset_generation/so_vision_dataset"
 
 TEST_SET_SIZE = 500
 
@@ -238,7 +239,39 @@ def mainime():
 
     with open('anime_mtcnn.pkl', 'wb') as pfile:
         pickle.dump(testSet, pfile)
-        
+
+def read_annotation(f):
+    first_line = f.readLine()
+    name, curr_class = first_line.split(" ")
+
+    cnt = int(f.readline())
+    faces = [f.readline() for i in range(cnt)]
+
+    image_path = SO_VISION_PATH+ '/' + name + '.jpg'
+
+    obj = ANIMOO(image_path, faces)
+    return obj
+
+def get_anime_faces_from_our_set():
+    allFaces = []
+
+    with open(SO_VISION_PATH + "/annotations.txt") as f:
+        for _ in range(1000):
+            allFaces.append(read_annotation(f))
+
+    return allFaces
+
+def get_real_faces_from_our_set(path):
+    allFaces = []
+
+    with open(SO_VISION_PATH + "/annotations.txt") as f:
+        for _ in range(1000):
+            read_annotation(f)
+        for _ in range(1000):
+            allFaces.append(read_annotation(f))
+
+    return allFaces
+
 def get_real_faces_from_file(path, minimum_size = 0):
     allFaces = []
     with open(path) as f:

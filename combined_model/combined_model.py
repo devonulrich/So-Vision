@@ -15,7 +15,7 @@ so_vision_model_loaded = False
 def mtcnn_detect_faces(image):
     global mtcnn, mtcnn_loaded
     if not mtcnn_loaded:
-        mtcnn = MTCNN()
+        mtcnn = MTCNN(steps_threshold=[0.5, 0.0, 0.0])
         mtcnn_loaded = True
 
     res = []
