@@ -25,7 +25,7 @@ def train():
 
     model = keras.Model(model_input, x)
     crossentropy = keras.losses.BinaryCrossentropy(from_logits=False)
-    model.compile(optimizer=keras.optimizers.Adam(), loss=crossentropy, metrics=['binary_accuracy'])
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-5), loss=crossentropy, metrics=['binary_accuracy'])
     model.summary()
 
     all_data = assemble_dict(ANIME_PATH)
@@ -36,9 +36,11 @@ def train():
     train_gen = CartoonDataGenerator(ANIME_PATH, all_data, all_files[ : train_cutoff])
     val_gen = CartoonDataGenerator(ANIME_PATH, all_data, all_files[train_cutoff : ])
 
-    history = model.fit(train_gen, validation_data=val_gen, epochs=10, verbose=1)
+    tb_callback = tf.keras.callbacks.TensorBoard('./logs', update_freq=5)
+    history = model.fit(train_gen, validation_data=val_gen, epochs=10, verbose=1, callbacks=[tb_callback])
     model.save('./modelout')
-    pickle.dump(history, './history.pkl')
+    with open('./history.pkl', 'wb') as pfile:
+        pickle.dump(history.history, pfile)
 
 if __name__ == '__main__':
     train()
