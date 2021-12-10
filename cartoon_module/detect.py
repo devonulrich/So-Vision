@@ -14,7 +14,7 @@ WINDOW_SIZE = 224
 # can detect faces that are 0.25% of the image by area
 # analyzed on iCartoonFace -- should be fine for 90% of faces
 # for a typical image, this means scaling by 7x
-FACE_SIZE_THRESHOLD = 0.0025
+FACE_SIZE_THRESHOLD = 0.01
 # min confidence for a rectangle in the sliding window to be considered a proposal
 MIN_CONFIDENCE = 0.2
 # new_size = size * RESCALING_FACTOR; 0.8 is roughly 3 images per octave
@@ -43,6 +43,9 @@ def sliding_window(model, img, doPrint=False):
         # if conf > MIN_CONFIDENCE:
         #     rects.append([curr_x, curr_y, WINDOW_SIZE, WINDOW_SIZE])
         #     rects_conf.append(conf)
+
+    if len(patches) == 0:
+        return np.array(rects), np.array(rects_conf)
 
     scores = model.predict(np.array(patches), batch_size=128, verbose=1)
     for i in range(len(all_pts_x)):
