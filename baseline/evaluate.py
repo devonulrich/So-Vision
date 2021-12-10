@@ -269,12 +269,14 @@ def read_annotation(f):
     faces = []
 
     for _ in range(cnt):
-        for x1, y1, width, height in f.readline().split(" "):
-            x2 = x1 + width
-            y2 = y1 + height
-            faces.append((x1, y1, x2, y2))
+        line = f.readline().split(" ")
+        x1 = int(line[0])
+        y1 = int(line[1])
+        width = int(line[2])
+        height = int(line[3][:-1])
+        faces.append((x1, y1, x1 + width, y1 + height))
 
-    image_path = SO_VISION_PATH+ '/' + name + '.jpg'
+    image_path = SO_VISION_PATH+ '/' + name
 
     obj = ANIMOO(image_path, faces)
     return obj
