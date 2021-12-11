@@ -7,6 +7,7 @@ import os
 
 from mtcnn import MTCNN
 from PIL import Image
+from numpy.core.numeric import full
 
 FOLDS_PATH = '../FDDB-folds'
 FDDB_PATH = '../fddb'
@@ -195,8 +196,8 @@ class ANIMOO:
         img = plt.imread(self.path)
         for bbox in self.ref_bboxes:
             img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0))
-        # for bbox in self.pred_bboxes:
-        #     img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255))
+        for bbox in self.pred_bboxes:
+            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255))
 
         plt.imshow(img)
         plt.show()
@@ -304,6 +305,17 @@ def get_real_faces_from_our_set():
 
     return allFaces
 
+def get_all_faces_from_our_set():
+    allFaces = []
+
+    with open(SO_VISION_PATH + "/annotations.txt") as f:
+        for _ in range(1000):
+            allFaces.append(read_annotation(f))
+        for _ in range(1000):
+            allFaces.append(read_annotation(f))
+
+    return allFaces
+
 def get_real_faces_from_file(path, minimum_size = 0):
     allFaces = []
     with open(path) as f:
@@ -357,6 +369,30 @@ def main():
         pickle.dump(allFaces, pfile)
         
 
+def full_mtcnn_eval():
+    detector = MTCNN(steps_threshold=[0.5, 0, 0])
+    allFaces = get_all_faces_from_our_set()
+
+    i = 0
+    for img in allFaces:
+        print(i)
+        i += 1
+        cnnOut = detector.detect_faces(img.get_img())
+        for pred_f in cnnOut:
+            pred_box = pred_f['box']
+            bbox = (pred_box[0], pred_box[1], pred_box[2], pred_box[3])
+            img.add_pred(bbox, pred_f['confidence'])
+        
+        '''
+        print('true/false pos/false neg', img.compute_metrics())
+        print(img.pred_conf)
+        img.draw()
+        if(i==5):
+            break
+        '''
+
+    with open('so_mtcnn.pkl', 'wb') as pfile:
+        pickle.dump(allFaces, pfile)
+
 if __name__ == '__main__':
-    mainime()
-    main()
+    full_mtcnn_eval()
