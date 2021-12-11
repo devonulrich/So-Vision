@@ -32,13 +32,16 @@ def IoU(rect1, rect2):
     inthi_x = min(hi1_x, hi2_x)
     inthi_y = min(hi1_y, hi2_y)
 
-    intArea = (inthi_x - intlo_x) * (inthi_y - intlo_y)
-    if intArea <= 0:
+    if inthi_x - intlo_x <= 0 or inthi_y - intlo_y <= 0:
         return 0
+
+    intArea = (inthi_x - intlo_x) * (inthi_y - intlo_y)
     
     area1 = (hi1_x - lo1_x) * (hi1_y - lo1_y)
     area2 = (hi2_x - lo2_x) * (hi2_y - lo2_y)
     unionArea = area1 + area2 - intArea
+    if unionArea <= 0:
+        return 0
 
     return intArea / unionArea
 
