@@ -179,7 +179,7 @@ def our_model_eval(model, allFaces):
     with open('so_ourmodel.pkl', 'wb') as pfile:
         pickle.dump(allFaces, pfile)
 
-def eval_all_faces(model, allFaces):
+def eval_on_fddb(model, allFaces):
     i = 0
     for img in allFaces:
         print(i, '/', len(allFaces), flush=True)
@@ -193,7 +193,7 @@ def eval_all_faces(model, allFaces):
         metrics = img.compute_metrics(returnArrs=True)
         print('Metrics:', metrics[:3], flush=True)
         
-    with open('so_ourmodel_everything.pkl', 'wb') as pfile:
+    with open('so_ourmodel_fddb.pkl', 'wb') as pfile:
         pickle.dump(allFaces, pfile)
 
 if __name__ == '__main__':
@@ -201,5 +201,5 @@ if __name__ == '__main__':
     # faces = get_anime_faces_from_our_set()
     # our_model_eval(model, faces)
 
-    all_faces = get_all_faces_from_our_set()
-    eval_all_faces(model, all_faces)
+    fddb_faces = get_real_faces_from_our_set()
+    eval_on_fddb(model, fddb_faces)
