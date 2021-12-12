@@ -122,8 +122,8 @@ class FDDBImg:
         img = plt.imread(self.path)
         for bbox in self.ref_bboxes:
             img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0))
-        # for bbox in self.pred_bboxes:
-        #     img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255))
+        for bbox in self.pred_bboxes:
+            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255), 3)
 
         plt.imshow(img)
         plt.show()
@@ -195,9 +195,9 @@ class ANIMOO:
     def draw(self):
         img = plt.imread(self.path)
         for bbox in self.ref_bboxes:
-            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0))
+            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0), 2)
         for bbox in self.pred_bboxes:
-            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255))
+            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255), 2)
 
         plt.imshow(img)
         plt.show()
@@ -220,8 +220,8 @@ def mainime():
         print('true/false pos/false neg', img.compute_metrics())
         print(img.pred_conf)
         img.draw()
-        if(i==5):
-            break
+        # if(i==5):
+        #     break
     with open('anime_mtcnn.pkl', 'wb') as pfile:
         pickle.dump(allFaces, pfile)
     # detector = MTCNN()
@@ -362,8 +362,6 @@ def main():
         print('true/false pos/false neg', img.compute_metrics())
         print(img.pred_conf)
         img.draw()
-        if(i==5):
-            break
 
     with open('fddb_mtcnn.pkl', 'wb') as pfile:
         pickle.dump(allFaces, pfile)
@@ -395,4 +393,5 @@ def full_mtcnn_eval():
         pickle.dump(allFaces, pfile)
 
 if __name__ == '__main__':
-    full_mtcnn_eval()
+    # full_mtcnn_eval()
+    mainime()
