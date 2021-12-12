@@ -5,7 +5,7 @@ import pickle
 
 import tensorflow as tf
 from tensorflow import keras
-from cartoon_module.detect import detect_on_img
+from detect import detect_on_img
 
 SO_VISION_PATH = "../dataset_generation/so_vision_dataset"
 
