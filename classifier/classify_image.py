@@ -12,7 +12,7 @@ def classify_image(images):
     global model
     if not model_loaded:
         print("loading model again")
-        model = keras.models.load_model("saved_models/" + model_name)
+        model = keras.models.load_model("./saved_models/" + model_name)
         model_loaded = True
 
     inputs = []
@@ -44,7 +44,6 @@ def classify_image(images):
 
 # for x in range(0,2000):
 #     input_images.append(cv2.cvtColor(cv2.imread("../dataset_generation/so_vision_dataset/so_vision_test_set/img_" + str(x) + ".jpg"), cv2.COLOR_BGR2RGB))
-# input_images.append(cv2.cvtColor(cv2.imread("../test_face_1.jpg"), cv2.COLOR_BGR2RGB))
 
 # res = classify_image(input_images)
 

@@ -1,10 +1,14 @@
 from mtcnn import MTCNN
 import cv2
 import sys
+import numpy as np
+from tensorflow import keras
 
 sys.path.append("../classifier")
+sys.path.append("../cartoon_module")
 
 from classify_image import classify_image
+from detect import detect_on_img
 
 mtcnn = None
 mtcnn_loaded = False
@@ -29,14 +33,16 @@ def mtcnn_detect_faces(image):
 def so_vision_detect_faces(image):
     global so_vision_model, so_vision_model_loaded
     if not so_vision_model_loaded:
-        # load our model
+        so_vision_model = keras.models.load_model('../cartoon_module/newmodel15')
         so_vision_model_loaded = True
 
     res = []
-    output = so_vision_model.predict(image)
-
-    for curr in output:
-        res.append(  ......   )
+    
+    outboxes, outscores = detect_on_img(so_vision_model, image, soft=True)
+    for boxIdx in range(len(outscores)):
+        pred_box = np.int32(outboxes[boxIdx,:])
+        bbox = (pred_box[0], pred_box[1], pred_box[2], pred_box[3])
+        res.append((bbox, outscores[boxIdx]))
 
     return res
 
