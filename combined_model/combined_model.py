@@ -37,7 +37,7 @@ def so_vision_detect_faces(image):
         so_vision_model_loaded = True
 
     res = []
-    
+
     outboxes, outscores = detect_on_img(so_vision_model, image, soft=True)
     for boxIdx in range(len(outscores)):
         pred_box = np.int32(outboxes[boxIdx,:])
@@ -55,7 +55,7 @@ def simple_combined_detect_faces(image):
 def classifier_combined_detect_faces(image):
     cartoon_or_real_class = classify_image([image])
 
-    if cartoon_or_real_class == 0:
+    if cartoon_or_real_class[0] == 0:
         return so_vision_detect_faces(image)
     else:
         return mtcnn_detect_faces(image)

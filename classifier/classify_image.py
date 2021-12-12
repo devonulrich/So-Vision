@@ -2,6 +2,7 @@ from train_model import get_center_slice
 import keras
 import cv2
 import numpy as np
+import sys
 
 model_loaded = False
 model = None
@@ -11,8 +12,7 @@ def classify_image(images):
     global model_loaded
     global model
     if not model_loaded:
-        print("loading model again")
-        model = keras.models.load_model("./saved_models/" + model_name)
+        model = keras.models.load_model("../classifier/saved_models/" + model_name)
         model_loaded = True
 
     inputs = []

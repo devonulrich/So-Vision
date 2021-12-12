@@ -6,7 +6,7 @@ import pickle
 import tensorflow as tf
 from tensorflow import keras
 
-from combined_model import so_vision_detect_faces, simple_combined_detect_faces
+from combined_model import classifier_combined_detect_faces, simple_combined_detect_faces
 
 SO_VISION_PATH = "../dataset_generation/so_vision_dataset"
 
@@ -168,7 +168,7 @@ def so_model_eval(allFaces):
     for img in allFaces:
         print(i, '/', len(allFaces), flush=True)
         i += 1
-        output = so_vision_detect_faces(allFaces[i].get_img())
+        output = classifier_combined_detect_faces(allFaces[i].get_img())
         for box, confidence in output:
             img.add_pred(box, confidence)
 
