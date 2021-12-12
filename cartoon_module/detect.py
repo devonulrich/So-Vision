@@ -11,20 +11,20 @@ import util
 # size of each input window. based on network ; should not be changed
 WINDOW_SIZE = 224
 
-# can detect faces that are 0.25% of the image by area
-# analyzed on iCartoonFace -- should be fine for 90% of faces
-# for a typical image, this means scaling by 7x
+# can detect faces that are 5% of the image by area
 FACE_SIZE_THRESHOLD = 0.01
 # min confidence for a rectangle in the sliding window to be considered a proposal
-MIN_CONFIDENCE = 0.2
+MIN_CONFIDENCE = 0.1
 # new_size = size * RESCALING_FACTOR; 0.8 is roughly 3 images per octave
 RESCALING_FACTOR = 0.8
+# sliding window stride
+STRIDE = 32
 # from paper
 NMS_THRESHOLD = 0.2
 
 def sliding_window(model, img, doPrint=False):
-    pts_x = np.arange(0, img.shape[1] - WINDOW_SIZE, 32) # stride = 32 
-    pts_y = np.arange(0, img.shape[0] - WINDOW_SIZE, 32)
+    pts_x = np.arange(0, img.shape[1] - WINDOW_SIZE, STRIDE) # stride = 32 
+    pts_y = np.arange(0, img.shape[0] - WINDOW_SIZE, STRIDE)
     all_pts_x = np.array([pts_x for _ in pts_y]).ravel()
     all_pts_y = np.array([pts_y for _ in pts_x]).T.ravel()
 
@@ -51,7 +51,8 @@ def sliding_window(model, img, doPrint=False):
     for i in range(len(all_pts_x)):
         if scores[i,0] > MIN_CONFIDENCE:
             rects.append([all_pts_x[i], all_pts_y[i], WINDOW_SIZE, WINDOW_SIZE])
-            rects_conf.append(scores[i,0])
+            mapped_score = (scores[i,0] - MIN_CONFIDENCE) / (1 - MIN_CONFIDENCE)
+            rects_conf.append(mapped_score)
     # plt.imsave('test.png', hmap)
     return np.array(rects), np.array(rects_conf)
 
