@@ -13,7 +13,7 @@ ICARTOON_PATH = '/scratch/network/dulrich/personai_icartoonface_dettrain'
 
 TEST_SET_SIZE = 500
 
-SOFT = False
+SOFT = True
 
 class CartoonImg:
     def __init__(self, path : str, faces):
@@ -90,7 +90,7 @@ class CartoonImg:
         plt.show()
 
 def main():
-    model = keras.models.load_model('./modelout')
+    model = keras.models.load_model('./newmodel15')
     allFaces = []
     dict = {}
     with open(ICARTOON_PATH + '/icartoonface_dettrain.csv') as f:
@@ -123,10 +123,18 @@ def main():
             pred_box = np.int32(outboxes[boxIdx,:])
             bbox = (pred_box[0], pred_box[1], pred_box[2], pred_box[3])
             img.add_pred(bbox, outscores[boxIdx])
+        metrics = img.compute_metrics(returnArrs=True)
+        print('Metrics:', metrics[:3], flush=True)
+        print('False positives:', flush=True)
+        for failidx in range(len(metrics[4])):
+            if not metrics[4][failidx]:
+                # false negative
+                print('  ', img.ref_bboxes[failidx], flush=True)
+
         
 
     suffix = 'soft.pkl' if SOFT else 'reg.pkl'
-    outputName = 'cartoon_custom_new_' + suffix
+    outputName = 'cartoon_custom_15_' + suffix
     with open(outputName, 'wb') as pfile:
         pickle.dump(testSet, pfile)
         

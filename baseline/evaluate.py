@@ -375,7 +375,7 @@ def full_mtcnn_eval():
 
     i = 0
     for img in allFaces:
-        print(i)
+        print(i, flush=True)
         i += 1
         cnnOut = detector.detect_faces(img.get_img())
         for pred_f in cnnOut:
