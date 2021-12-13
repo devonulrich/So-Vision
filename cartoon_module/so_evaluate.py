@@ -104,9 +104,9 @@ class SoVisionImg:
     def draw(self):
         img = plt.imread(self.path)
         for bbox in self.ref_bboxes:
-            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0))
+            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0), 2)
         for bbox in self.pred_bboxes:
-            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255))
+            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255), 2)
 
         plt.imshow(img)
         plt.show()
@@ -179,7 +179,27 @@ def our_model_eval(model, allFaces):
     with open('so_ourmodel.pkl', 'wb') as pfile:
         pickle.dump(allFaces, pfile)
 
+def eval_on_fddb(model, allFaces):
+    i = 0
+    for img in allFaces:
+        print(i, '/', len(allFaces), flush=True)
+        i += 1
+        outboxes, outscores = detect_on_img(model, img.get_img(), soft=True)
+        for boxIdx in range(len(outscores)):
+            pred_box = np.int32(outboxes[boxIdx,:])
+            bbox = (pred_box[0], pred_box[1], pred_box[2], pred_box[3])
+            img.add_pred(bbox, outscores[boxIdx])
+
+        metrics = img.compute_metrics(returnArrs=True)
+        print('Metrics:', metrics[:3], flush=True)
+        
+    with open('so_ourmodel_fddb.pkl', 'wb') as pfile:
+        pickle.dump(allFaces, pfile)
+
 if __name__ == '__main__':
     model = keras.models.load_model('./newmodel15')
-    faces = get_anime_faces_from_our_set()
-    our_model_eval(model, faces)
+    # faces = get_anime_faces_from_our_set()
+    # our_model_eval(model, faces)
+
+    fddb_faces = get_real_faces_from_our_set()
+    eval_on_fddb(model, fddb_faces)

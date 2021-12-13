@@ -6,7 +6,7 @@ import pickle
 import tensorflow as tf
 from tensorflow import keras
 
-from combined_model import classifier_combined_detect_faces, simple_combined_detect_faces
+from combined_model import classifier_combined_detect_faces, union_combined_detect_faces
 
 SO_VISION_PATH = "../dataset_generation/so_vision_dataset"
 
@@ -105,9 +105,9 @@ class SoVisionImg:
     def draw(self):
         img = plt.imread(self.path)
         for bbox in self.ref_bboxes:
-            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0))
+            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 0), 2)
         for bbox in self.pred_bboxes:
-            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255))
+            img = cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (0, 0, 255), 2)
 
         plt.imshow(img)
         plt.show()
@@ -164,13 +164,9 @@ def get_all_faces_from_our_set():
     return allFaces
 
 def so_model_eval(allFaces):
-    i = 0
-    for img in allFaces:
+    for i, img in enumerate(allFaces):
         print(i, '/', len(allFaces), flush=True)
-        i += 1
-        output = classifier_combined_detect_faces(allFaces[i].get_img())
-        for box, confidence in output:
-            img.add_pred(box, confidence)
+        img = classifier_combined_detect_faces(allFaces[i], i)
 
         metrics = img.compute_metrics(returnArrs=True)
         print('Metrics:', metrics[:3], flush=True)
@@ -179,24 +175,20 @@ def so_model_eval(allFaces):
         pickle.dump(allFaces, pfile)
 
 
-def combined_model_eval(allFaces):
-    i = 0
-    for img in allFaces:
+def union_combined_model_eval(allFaces):
+    for i, img in enumerate(allFaces):
         print(i, '/', len(allFaces), flush=True)
-        i += 1
-        output = simple_combined_detect_faces(allFaces[i].get_img())
-        for box, confidence in output:
-            img.add_pred(box, confidence)
+        img = union_combined_detect_faces(allFaces[i], i)
 
         metrics = img.compute_metrics(returnArrs=True)
         print('Metrics:', metrics[:3], flush=True)
         
-    with open('simple_combined_model.pkl', 'wb') as pfile:
+    with open('union_combined_model.pkl', 'wb') as pfile:
         pickle.dump(allFaces, pfile)
 
 if __name__ == '__main__':
     so_vision_faces = get_all_faces_from_our_set()
     so_model_eval(so_vision_faces)
 
-    simply_combined_faces = get_all_faces_from_our_set()
-    combined_model_eval(simply_combined_faces)
+    union_combined_faces = get_all_faces_from_our_set()
+    union_combined_model_eval(union_combined_faces)
