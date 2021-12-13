@@ -25,7 +25,7 @@ so_vision_model_loaded = False
 def mtcnn_detect_faces(image):
     global mtcnn, mtcnn_loaded
     if not mtcnn_loaded:
-        mtcnn = MTCNN(steps_threshold=[0.5, 0, 0])
+        mtcnn = MTCNN()
         mtcnn_loaded = True
 
     mtcnn_output = mtcnn.detect_faces(image.get_img())
@@ -91,7 +91,7 @@ def union_combined_detect_faces(image, idx):
 
         if not new_preds:
             break
-
+        
         new_new_preds = [new_preds[0]]
 
         for x in range(1, len(new_preds)):

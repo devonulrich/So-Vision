@@ -170,8 +170,10 @@ def so_model_eval(allFaces):
 
         metrics = img.compute_metrics(returnArrs=True)
         print('Metrics:', metrics[:3], flush=True)
+
+        allFaces[i] = img
         
-    with open('so_combined_model_steps.pkl', 'wb') as pfile:
+    with open('so_combined_model.pkl', 'wb') as pfile:
         pickle.dump(allFaces, pfile)
 
 
@@ -182,6 +184,8 @@ def union_combined_model_eval(allFaces):
 
         metrics = img.compute_metrics(returnArrs=True)
         print('Metrics:', metrics[:3], flush=True)
+
+        allFaces[i] = img
         
     with open('union_combined_model.pkl', 'wb') as pfile:
         pickle.dump(allFaces, pfile)
