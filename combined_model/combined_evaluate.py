@@ -183,12 +183,12 @@ def union_combined_model_eval(allFaces):
         metrics = img.compute_metrics(returnArrs=True)
         print('Metrics:', metrics[:3], flush=True)
         
-    with open('simple_combined_model.pkl', 'wb') as pfile:
+    with open('union_combined_model.pkl', 'wb') as pfile:
         pickle.dump(allFaces, pfile)
 
 if __name__ == '__main__':
-    # so_vision_faces = get_all_faces_from_our_set()
-    # so_model_eval(so_vision_faces)
+    so_vision_faces = get_all_faces_from_our_set()
+    so_model_eval(so_vision_faces)
 
     union_combined_faces = get_all_faces_from_our_set()
     union_combined_model_eval(union_combined_faces)
