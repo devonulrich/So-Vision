@@ -10,7 +10,7 @@ The datasets that this is run on are the iCartoon Face Detection Dataset: https:
 ## Modules:
 
 ### Generate Dataset
-Uses above datsets to define the combined 50/50 So Vision Dataset. Run by doing running 'python generate-datset.py'
+Uses above datsets to define the combined 50/50 So Vision Dataset. Run by doing running 'python generate_datset.py'
 
 ### Baseline
 Baseline covers analysis of the pre-trained MTCNN in the python package mtcnn (https://pypi.org/project/mtcnn/) on So Vision dataset. 
